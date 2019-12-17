@@ -27,9 +27,9 @@ class ViewController: UIViewController, UITableViewDataSource {
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         self.fetchResult = PHAsset.fetchAssets(in: cameraRollCollection, options: fetchOptions)
     }
-  
     
-
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -49,7 +49,9 @@ class ViewController: UIViewController, UITableViewDataSource {
                 case .authorized:
                     print("사용자가 허용함")
                     self.requestCollection()
-                    self.tableView.reloadData()
+                    OperationQueue.main.addOperation {
+                        self.tableView.reloadData()
+                    }
                 case .denied:
                     print("사용자가 불허함")
                 default: break
