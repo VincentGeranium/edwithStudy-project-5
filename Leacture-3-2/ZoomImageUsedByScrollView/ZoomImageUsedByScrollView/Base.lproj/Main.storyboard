@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Dr2-gm-1nP">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ZoomImageUsedByScrollView" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="cR2-kV-fvl">
+                                <rect key="frame" x="0.0" y="88" width="414" height="774"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" id="YJ6-z3-TMF">
+                                        <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="YJ6-z3-TMF" id="cnu-2S-Jpc">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="Q5b-x5-Uts" kind="show" id="Clc-dK-pbL"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="IHR-uF-jT0"/>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="Pjs-JB-bra"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="cR2-kV-fvl" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="1Ht-4d-LQ5"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="cR2-kV-fvl" secondAttribute="trailing" id="CfK-N1-ia2"/>
+                            <constraint firstItem="cR2-kV-fvl" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="FtE-sH-kDM"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="cR2-kV-fvl" secondAttribute="bottom" id="Ia6-8g-tfu"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="xOV-Q5-Amg"/>
+                    <connections>
+                        <outlet property="tableView" destination="cR2-kV-fvl" id="ibJ-0B-7e1"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1047.8260869565217" y="137.94642857142856"/>
+        </scene>
+        <!--Image Zoom View Controller-->
+        <scene sceneID="lPd-cj-XvY">
+            <objects>
+                <viewController id="Q5b-x5-Uts" customClass="ImageZoomViewController" customModule="ZoomImageUsedByScrollView" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Q4d-Yz-QSS">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="861-69-Dl3">
+                                <rect key="frame" x="0.0" y="88" width="414" height="774"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gDB-j3-PGO">
+                                        <rect key="frame" x="20" y="20" width="240" height="128"/>
+                                    </imageView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="gDB-j3-PGO" secondAttribute="trailing" constant="20" symbolic="YES" id="6Ci-dQ-fnI"/>
+                                    <constraint firstItem="gDB-j3-PGO" firstAttribute="leading" secondItem="861-69-Dl3" secondAttribute="leading" constant="20" symbolic="YES" id="L4P-4f-bJr"/>
+                                    <constraint firstItem="gDB-j3-PGO" firstAttribute="height" secondItem="861-69-Dl3" secondAttribute="height" multiplier="0.165375" id="a8A-6t-nOo"/>
+                                    <constraint firstAttribute="bottom" secondItem="gDB-j3-PGO" secondAttribute="bottom" constant="20" symbolic="YES" id="mIF-1Q-KK5"/>
+                                    <constraint firstItem="gDB-j3-PGO" firstAttribute="width" secondItem="861-69-Dl3" secondAttribute="width" multiplier="0.57971" id="y0k-4I-dMe"/>
+                                    <constraint firstItem="gDB-j3-PGO" firstAttribute="top" secondItem="861-69-Dl3" secondAttribute="top" constant="20" symbolic="YES" id="zPh-4t-yjL"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="u25-EZ-Skk" firstAttribute="trailing" secondItem="861-69-Dl3" secondAttribute="trailing" id="6DI-eH-eSg"/>
+                            <constraint firstItem="u25-EZ-Skk" firstAttribute="bottom" secondItem="861-69-Dl3" secondAttribute="bottom" id="L7i-UY-yin"/>
+                            <constraint firstItem="861-69-Dl3" firstAttribute="leading" secondItem="u25-EZ-Skk" secondAttribute="leading" id="Lx0-aF-zQT"/>
+                            <constraint firstItem="861-69-Dl3" firstAttribute="top" secondItem="u25-EZ-Skk" secondAttribute="top" id="zQn-u5-0yb"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="u25-EZ-Skk"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="VyH-jB-kLn"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="9lO-fo-STz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1903" y="138"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="ayR-iP-VrF">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Dr2-gm-1nP" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="wH2-qR-cmi">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="YRS-tS-nRv"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="zDn-jt-th0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="137.68115942028987" y="137.94642857142856"/>
+        </scene>
+    </scenes>
+</document>
