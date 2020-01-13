@@ -24,6 +24,7 @@ class AlbumListViewController: UIViewController {
     }()
     
     private var fetchResult: PHFetchResult<PHAsset>?
+    private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
     let fetchSortDescriptorKey: String = "creationDate"
     let albumListTitle = "앨범"
     
@@ -35,8 +36,9 @@ class AlbumListViewController: UIViewController {
         self.albumListCollectionView.delegate = self
         self.albumListCollectionView.dataSource = self
         
-//        authorizationStatusOfPhotoLibrary()
+        authorizationStatusOfPhotoLibrary()
         setupCollectionView()
+        getPhotoLibraryData()
     }
     
     private func setupCollectionView() {
@@ -72,7 +74,7 @@ class AlbumListViewController: UIViewController {
         case .authorized:
             print("접근 허가")
             self.requestCollection()
-            //self.collectionView.reload()
+            self.albumListCollectionView.reloadData()
         case .denied:
             print("접근 불허")
         case .notDetermined:
@@ -83,7 +85,7 @@ class AlbumListViewController: UIViewController {
                     print("접근 허가")
                     self.requestCollection()
                     OperationQueue.main.addOperation {
-                        //self.collectionView.reload()
+                        self.albumListCollectionView.reloadData()
                     }
                 case .denied:
                     print("사용자가 접근 불허함")
@@ -96,9 +98,24 @@ class AlbumListViewController: UIViewController {
             fatalError()
         }
     }
+    
+    // 앨범 이름 가져오는 메소드
+    private func getPhotoLibraryData() {
+        let options: PHFetchOptions = PHFetchOptions()
+        let getUserLibrary: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: options)
+
+        self.fetchResultOfCollection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumRegular, options: nil)
+
+        for i in 0 ..< getUserLibrary.count {
+            let collection = getUserLibrary[i]
+            let libraryTitle = collection.localizedTitle
+            print(libraryTitle)
+        }
+    }
 }
 
 extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
         
@@ -108,7 +125,8 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
 
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 7
+     
+        return self.fetchResult?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -116,8 +134,21 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
             return UICollectionViewCell()
         }
         
+        let asset: PHAsset = fetchResult?.object(at: indexPath.item) ?? PHAsset()
+        
+        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
+        
+        imageManager.requestImage(for: asset,
+                                  targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
+                                  contentMode: .aspectFill,
+                                  options: nil) {image, _ in
+                                    cell.thumbnailImage = image
+        }
+        
+        
         return cell
     }
+    
     
     
 }
