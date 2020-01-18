@@ -11,6 +11,8 @@ import Photos
 
 class AlbumListViewController: UIViewController {
     
+    var dataArray: [PHAssetCollection] = []
+    
     private let albumListCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -24,8 +26,8 @@ class AlbumListViewController: UIViewController {
     }()
     
     private var fetchResult: PHFetchResult<PHAsset>?
-    private var fetchResultOfCollection: PHFetchResult<PHCollection>?
-    let fetchSortDescriptorKey: String = "creationDate"
+    private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
+    let fetchSortDescriptorKey: String = "modificationDate"
     let albumListTitle = "앨범"
     
     override func viewDidLoad() {
@@ -60,22 +62,41 @@ class AlbumListViewController: UIViewController {
     
     private func requestCollection() {
         let fetchOptions = PHFetchOptions()
-        let cameraRoll: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: nil)
+        let assetCollection: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil)
         
-        let topLevelUserCollections = PHCollectionList.fetchTopLevelUserCollections(with: fetchOptions)
-        let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: fetchOptions)
-        let allAlbums = [topLevelUserCollections, smartAlbums]
+        let getAlbum: PHFetchResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
         
-        allAlbums.enumerated()
+        print(getAlbum)
         
         
+        var albumAssetCollection: PHAssetCollection?
         
-        guard let cameraRollCollection = cameraRoll.firstObject else { return }
         
+        for i in 0 ..< getAlbum.count {
+            albumAssetCollection = getAlbum[i] as! PHAssetCollection
+            print("🟢 : \(albumAssetCollection?.localizedTitle)")
+            guard let fetchAlbumCollection: PHAssetCollection = albumAssetCollection else {
+                return
+            }
+            
+            
+        }
         
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key:"localizedTitle", ascending: false)]
-        self.fetchResultOfCollection = PHCollection.fetchTopLevelUserCollections(with: fetchOptions)
-        self.fetchResult = PHAsset.fetchAssets(in: cameraRollCollection, options: fetchOptions)
+     
+        
+        guard let assetCollectionFirstObject = getAlbum.firstObject else {
+            return
+        }
+
+        
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: fetchSortDescriptorKey, ascending: false)]
+        self.fetchResult = PHAsset.fetchAssets(in: assetCollectionFirstObject, options: fetchOptions)
+//        self.fetchResultOfCollection = PHAssetCollection.fetchAssetCollectionsContaining(<#T##asset: PHAsset##PHAsset#>, with: <#T##PHAssetCollectionType#>, options: <#T##PHFetchOptions?#>)
+
+        
+        dataArray.append(assetCollectionFirstObject)
+
+        print("🟡 : \(assetCollectionFirstObject.localizedTitle)")
     }
     
     private func authorizationStatusOfPhotoLibrary() {
@@ -85,6 +106,9 @@ class AlbumListViewController: UIViewController {
         case .authorized:
             print("접근 허가")
             self.requestCollection()
+            print("🔴 : \(dataArray)")
+            print("🔵 : \(dataArray.count)")
+            
             self.albumListCollectionView.reloadData()
         case .denied:
             print("접근 불허")
@@ -109,26 +133,6 @@ class AlbumListViewController: UIViewController {
             fatalError()
         }
     }
-    
-    // 앨범 이름 가져오는 메소드
-    private func getPhotoLibraryData() {
-        let options: PHFetchOptions = PHFetchOptions()
-        let getUserLibrary: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: options)
-        
-        // fetchResultOfCollection
-//        self.fetchResultOfCollection = PHAssetCollection.fetchTopLevelUserCollections(with: options) as! PHFetchResult<PHAssetCollection>
-
-        for i in 0 ..< getUserLibrary.count {
-            let assetCollection: PHAssetCollection = getUserLibrary[i]
-            
-            print(assetCollection.estimatedAssetCount)
-            print(assetCollection.localizedTitle)
-            
-            let assetFetchResult: PHFetchResult = PHAsset.fetchAssets(in: assetCollection, options: nil)
-            
-            print(assetFetchResult.count)
-        }
-    }
 }
 
 extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -142,8 +146,8 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
 
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.fetchResultOfCollection?.count ?? 0
-//        return self.fetchResult?.count ?? 0
+//        return self.fetchResultOfCollection?.count ?? 0
+        return self.fetchResult?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -154,12 +158,6 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
 //        let assetOfCollection = fetchResultOfCollection?.object(at: indexPath.item)
        
         let asset: PHAsset = fetchResult?.object(at: indexPath.item) ?? PHAsset()
-        
-        
-        
-//        imageManager.startCachingImages(for: <#T##[PHAsset]#>, targetSize: <#T##CGSize#>, contentMode: <#T##PHImageContentMode#>, options: <#T##PHImageRequestOptions?#>)
-//        imageManager.requestImage(for: <#T##PHAsset#>, targetSize: <#T##CGSize#>, contentMode: <#T##PHImageContentMode#>, options: <#T##PHImageRequestOptions?#>, resultHandler: <#T##(UIImage?, [AnyHashable : Any]?) -> Void#>)
-    
         
         let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
         
