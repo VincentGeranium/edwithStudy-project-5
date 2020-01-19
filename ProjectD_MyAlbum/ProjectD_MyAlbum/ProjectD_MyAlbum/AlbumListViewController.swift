@@ -10,8 +10,8 @@ import UIKit
 import Photos
 
 class AlbumListViewController: UIViewController {
-    
-    var dataArray: [PHAssetCollection] = []
+
+    var albumAssetCollectionArray: [PHAssetCollection] = []
     
     private let albumListCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -27,7 +27,7 @@ class AlbumListViewController: UIViewController {
     
     private var fetchResult: PHFetchResult<PHAsset>?
     private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
-    let fetchSortDescriptorKey: String = "modificationDate"
+    let fetchSortDescriptorKey: String = "creationDate"
     let albumListTitle = "앨범"
     
     override func viewDidLoad() {
@@ -62,29 +62,32 @@ class AlbumListViewController: UIViewController {
     
     private func requestCollection() {
         let fetchOptions = PHFetchOptions()
-        let assetCollection: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil)
-        
-        let getAlbum: PHFetchResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+        let getAlbum: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
         
         print(getAlbum)
         
-        
         var albumAssetCollection: PHAssetCollection?
         
+        var getAlbumsFirstObject: PHFetchResult<PHAssetCollection>?
         
         for i in 0 ..< getAlbum.count {
-            albumAssetCollection = getAlbum[i] as! PHAssetCollection
-            print("🟢 : \(albumAssetCollection?.localizedTitle)")
-            guard let fetchAlbumCollection: PHAssetCollection = albumAssetCollection else {
+            albumAssetCollection = getAlbum[i]
+            guard let albumAssetCollection =  albumAssetCollection else {
                 return
             }
             
+            // 각 앨범의 이름 확인
+            print("🟢 : \(albumAssetCollection.localizedTitle)")
+            print("🟢🟢🟢 : \(albumAssetCollection.localIdentifier)")
+            albumAssetCollectionArray.append(albumAssetCollection)
+            // 앨범 컬렉션 갯수 확인
+            print("🟢🟢 : \(albumAssetCollectionArray.count)")
             
         }
         
      
         
-        guard let assetCollectionFirstObject = getAlbum.firstObject else {
+        guard let assetCollectionFirstObject = getAlbumsFirstObject?.firstObject else {
             return
         }
 
@@ -92,9 +95,6 @@ class AlbumListViewController: UIViewController {
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: fetchSortDescriptorKey, ascending: false)]
         self.fetchResult = PHAsset.fetchAssets(in: assetCollectionFirstObject, options: fetchOptions)
 //        self.fetchResultOfCollection = PHAssetCollection.fetchAssetCollectionsContaining(<#T##asset: PHAsset##PHAsset#>, with: <#T##PHAssetCollectionType#>, options: <#T##PHFetchOptions?#>)
-
-        
-        dataArray.append(assetCollectionFirstObject)
 
         print("🟡 : \(assetCollectionFirstObject.localizedTitle)")
     }
@@ -106,9 +106,6 @@ class AlbumListViewController: UIViewController {
         case .authorized:
             print("접근 허가")
             self.requestCollection()
-            print("🔴 : \(dataArray)")
-            print("🔵 : \(dataArray.count)")
-            
             self.albumListCollectionView.reloadData()
         case .denied:
             print("접근 불허")
