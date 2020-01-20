@@ -13,6 +13,8 @@ class AlbumListViewController: UIViewController {
 
     var albumAssetCollectionArray: [PHAssetCollection] = []
     
+    var albumAssetID: [String] = []
+    
     private let albumListCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -59,6 +61,11 @@ class AlbumListViewController: UIViewController {
     }
     
 
+    var fetchResultArray: [PHFetchResult<PHAssetCollection>?] = []
+    var id: [String] = []
+    var id2: [String] = []
+    var assetCollectionArray: [PHAssetCollection] = []
+
     
     private func requestCollection() {
         let fetchOptions = PHFetchOptions()
@@ -66,37 +73,40 @@ class AlbumListViewController: UIViewController {
         
         print(getAlbum)
         
-        var albumAssetCollection: PHAssetCollection?
-        
-        var getAlbumsFirstObject: PHFetchResult<PHAssetCollection>?
+//        guard let getFirstObject = getAlbum.firstObject else {
+//            return
+//        }
         
         for i in 0 ..< getAlbum.count {
-            albumAssetCollection = getAlbum[i]
-            guard let albumAssetCollection =  albumAssetCollection else {
+            fetchResultArray.append(getAlbum)
+            print(type(of: fetchResultArray[i]))
+            guard let getFirstObject = fetchResultArray[i]?.firstObject else {
                 return
             }
-            
-            // 각 앨범의 이름 확인
-            print("🟢 : \(albumAssetCollection.localizedTitle)")
-            print("🟢🟢🟢 : \(albumAssetCollection.localIdentifier)")
-            albumAssetCollectionArray.append(albumAssetCollection)
-            // 앨범 컬렉션 갯수 확인
-            print("🟢🟢 : \(albumAssetCollectionArray.count)")
-            
+            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+            self.fetchResult = PHAsset.fetchAssets(in: getFirstObject, options: fetchOptions)
         }
         
-     
+        print("🟢 : \(fetchResultArray.count)")
+
+        print(fetchResult?.count)
         
-        guard let assetCollectionFirstObject = getAlbumsFirstObject?.firstObject else {
-            return
+
+        
+    }
+    
+    func getThumbnail(cell: AlbumListCollectionViewCell) {
+        
+        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
+        
+        for i in 0 ..< fetchResult!.count {
+            imageManager.requestImage(for: fetchResult![i],
+                                      targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
+                                      contentMode: .aspectFill,
+                                      options: nil)  {image, _ in
+                                        cell.thumbnailImage = image
+            }
         }
-
-        
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key: fetchSortDescriptorKey, ascending: false)]
-        self.fetchResult = PHAsset.fetchAssets(in: assetCollectionFirstObject, options: fetchOptions)
-//        self.fetchResultOfCollection = PHAssetCollection.fetchAssetCollectionsContaining(<#T##asset: PHAsset##PHAsset#>, with: <#T##PHAssetCollectionType#>, options: <#T##PHFetchOptions?#>)
-
-        print("🟡 : \(assetCollectionFirstObject.localizedTitle)")
     }
     
     private func authorizationStatusOfPhotoLibrary() {
@@ -152,12 +162,12 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
             return UICollectionViewCell()
         }
         
-//        let assetOfCollection = fetchResultOfCollection?.object(at: indexPath.item)
+        
        
         let asset: PHAsset = fetchResult?.object(at: indexPath.item) ?? PHAsset()
         
         let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-        
+
         imageManager.requestImage(for: asset,
                                   targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
                                   contentMode: .aspectFill,
@@ -165,6 +175,7 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
                                     cell.thumbnailImage = image
         }
         
+//        getThumbnail(cell: cell)
         
         
         return cell
