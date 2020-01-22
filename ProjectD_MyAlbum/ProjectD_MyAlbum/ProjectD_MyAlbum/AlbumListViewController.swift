@@ -65,33 +65,44 @@ class AlbumListViewController: UIViewController {
     var id: [String] = []
     var id2: [String] = []
     var assetCollectionArray: [PHAssetCollection] = []
+    var albumTitles: [String] = []
+    var albumConunt: [Int] = []
+    var albumFirstObjects: [PHAsset] = []
 
     
     private func requestCollection() {
         let fetchOptions = PHFetchOptions()
-        let getAlbum: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+        let getMyAlbums: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
         
-        print(getAlbum)
         
-//        guard let getFirstObject = getAlbum.firstObject else {
-//            return
-//        }
-        
-        for i in 0 ..< getAlbum.count {
-            fetchResultArray.append(getAlbum)
-            print(type(of: fetchResultArray[i]))
-            guard let getFirstObject = fetchResultArray[i]?.firstObject else {
-                return
-            }
-            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            self.fetchResult = PHAsset.fetchAssets(in: getFirstObject, options: fetchOptions)
+        getMyAlbums.enumerateObjects { (collection, index, stop) in
+            let secondFetchOptions = PHFetchOptions()
+            
+            guard let album = collection as? PHAssetCollection else { return }
+            
+            self.albumTitles.append(album.localizedTitle ?? "error")
+            
+            let assetFetchResult: PHFetchResult = PHAsset.fetchAssets(in: album, options: secondFetchOptions)
+            
+            self.albumConunt.append(assetFetchResult.count)
+            
+            guard let getFirstObject = assetFetchResult.firstObject else { return }
+            
+            self.albumFirstObjects.append(getFirstObject)
+            
+            secondFetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+            
+            print(secondFetchOptions)
+            
+            
+            
         }
         
-        print("🟢 : \(fetchResultArray.count)")
-
-        print(fetchResult?.count)
+//        print(albumTitles)
+//        print(albumTitles.count)
+//        print(albumConunt)
+//        print("앨범 오브젝트 : \(albumFirstObjects), 갯수 : \(albumFirstObjects.count)")
         
-
         
     }
     
