@@ -14,9 +14,9 @@ struct AlbumModel {
     let name: String
     let count: Int
     let collection: PHAssetCollection
-    let asset: PHAssetCollection
+    let asset: PHAsset
     
-    init(name: String, count: Int, collection: PHAssetCollection, asset: PHAssetCollection) {
+    init(name: String, count: Int, collection: PHAssetCollection, asset: PHAsset) {
         self.name = name
         self.count = count
         self.collection = collection

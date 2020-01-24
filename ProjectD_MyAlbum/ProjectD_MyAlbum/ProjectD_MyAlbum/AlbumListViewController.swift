@@ -67,7 +67,7 @@ class AlbumListViewController: UIViewController {
     var assetCollectionArray: [PHAssetCollection] = []
     var albumTitles: [String] = []
     var albumConunt: [Int] = []
-    var albumFirstObjects: [PHAssetCollection] = []
+    var albumFirstObjects: [PHAsset] = []
 
     
     private func requestCollection() {
@@ -95,7 +95,7 @@ class AlbumListViewController: UIViewController {
             // 각 앨범내의 사진 갯수
             self.albumConunt.append(assetFetchResult.count)
             
-            guard let getFirstObject = getMyAlbums.firstObject else { return }
+            guard let getFirstObject = assetFetchResult.firstObject else { return }
             
             self.albumFirstObjects.append(getFirstObject)
             
@@ -110,6 +110,8 @@ class AlbumListViewController: UIViewController {
             return
         }
         
+  
+        
         for i in 0 ..< allAlbumCount {
             
             fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
@@ -118,9 +120,14 @@ class AlbumListViewController: UIViewController {
             
             print("name \(newAlbum?.name), count \(newAlbum?.count), asset \(newAlbum?.asset)")
             
-            let getThumbnail = PHAsset.fetchAssets(in: albumFirstObjects[i], options: fetchOptions)
+            let fetchResultSecond = PHAssetCollection.fetchAssetCollectionsContaining(albumFirstObjects[i], with: .album, options: nil)
             
-            self.fetchResult = getThumbnail
+//            let getThumbnail = albumFirstObjects[i]
+            guard let getFirstObjects = fetchResultSecond.firstObject else {
+                return
+            }
+            
+            self.fetchResult = PHAsset.fetchAssets(with: fetchOptions)
         }
         
     }
