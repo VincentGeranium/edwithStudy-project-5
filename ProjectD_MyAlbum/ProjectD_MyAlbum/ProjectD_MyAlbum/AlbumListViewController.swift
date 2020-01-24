@@ -67,42 +67,61 @@ class AlbumListViewController: UIViewController {
     var assetCollectionArray: [PHAssetCollection] = []
     var albumTitles: [String] = []
     var albumConunt: [Int] = []
-    var albumFirstObjects: [PHAsset] = []
+    var albumFirstObjects: [PHAssetCollection] = []
 
     
     private func requestCollection() {
         let fetchOptions = PHFetchOptions()
         let getMyAlbums: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-        
+        var albumCollection: PHAssetCollection?
+        var newAlbum: AlbumModel?
+        let allAlbumCount: Int = getMyAlbums.count
         
         getMyAlbums.enumerateObjects { (collection, index, stop) in
             let secondFetchOptions = PHFetchOptions()
             
             guard let album = collection as? PHAssetCollection else { return }
             
+            albumCollection = album
+            
+            // 앨범의 이름 가져오기
             self.albumTitles.append(album.localizedTitle ?? "error")
+            
+//            print(self.albumTitles.count)
+//            print(self.albumTitles[0])
             
             let assetFetchResult: PHFetchResult = PHAsset.fetchAssets(in: album, options: secondFetchOptions)
             
+            // 각 앨범내의 사진 갯수
             self.albumConunt.append(assetFetchResult.count)
             
-            guard let getFirstObject = assetFetchResult.firstObject else { return }
+            guard let getFirstObject = getMyAlbums.firstObject else { return }
             
             self.albumFirstObjects.append(getFirstObject)
             
+            // 이미지만 가져오도록 옵션 설정
             secondFetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
             
-            print(secondFetchOptions)
-            
-            
-            
+//            print(secondFetchOptions)
+
         }
         
-//        print(albumTitles)
-//        print(albumTitles.count)
-//        print(albumConunt)
-//        print("앨범 오브젝트 : \(albumFirstObjects), 갯수 : \(albumFirstObjects.count)")
+        guard let unwrapAlbumCollection = albumCollection else {
+            return
+        }
         
+        for i in 0 ..< allAlbumCount {
+            
+            fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+            
+            newAlbum = AlbumModel(name: albumTitles[i], count: albumConunt[i], collection: unwrapAlbumCollection, asset: albumFirstObjects[i])
+            
+            print("name \(newAlbum?.name), count \(newAlbum?.count), asset \(newAlbum?.asset)")
+            
+            let getThumbnail = PHAsset.fetchAssets(in: albumFirstObjects[i], options: fetchOptions)
+            
+            self.fetchResult = getThumbnail
+        }
         
     }
     
