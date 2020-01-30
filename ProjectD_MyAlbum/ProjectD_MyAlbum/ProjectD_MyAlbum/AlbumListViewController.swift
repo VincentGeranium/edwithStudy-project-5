@@ -30,6 +30,8 @@ class AlbumListViewController: UIViewController {
     private var fetchResult: PHFetchResult<PHAsset>?
     private var thumbnailAsset: PHAsset?
     private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
+    private var assetFetchResultss: PHFetchResult<AnyObject>?
+    
     let fetchSortDescriptorKey: String = "creationDate"
     let albumListTitle = "앨범"
     
@@ -73,94 +75,25 @@ class AlbumListViewController: UIViewController {
     
     private func requestCollection() {
         let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         let getMyAlbums: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-        var albumCollection: PHAssetCollection?
-        var newAlbum: AlbumModel?
-        let allAlbumCount: Int = getMyAlbums.count
         
-        
+ 
         getMyAlbums.enumerateObjects { (collection, index, stop) in
+            print(collection.estimatedAssetCount)
             
-            guard let album = collection as? PHAssetCollection else { return }
+            let fetchResults = PHAsset.fetchAssets(in: collection, options: fetchOptions)
             
-            albumCollection = album
+            print(fetchResults)
             
-             fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            
-            // 앨범의 이름 가져오기
-            self.albumTitles.append(album.localizedTitle ?? "error")
-
-            let assetFetchResult: PHFetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
-            
-            // 각 앨범내의 사진 갯수
-            self.albumConunt.append(assetFetchResult.count)
-            
-            guard let getFirstObject = assetFetchResult.firstObject else { return }
-            
-            // 각 앨범의 썸네일 이미지를 뽑아 배열에 넣음
-            self.albumFirstObjects.append(getFirstObject)
-//            print("🔴 : \(self.albumFirstObjects.count)")
-            
-            newAlbum = AlbumModel(name: self.albumTitles[index], count: self.albumConunt[index], collection: album, asset: self.albumFirstObjects[index])
-            print("name \(newAlbum?.name), count \(newAlbum?.count), asset \(newAlbum?.asset)")
-            
-            self.thumbnailAsset = newAlbum?.asset
         }
         
         
-     
         
-//
-//        guard let unwrapAlbumCollection = albumCollection else {
-//            return
-//        }
-        
-  
-        
-//        for i in 0 ..< allAlbumCount {
-            
-//            fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-//            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            
-//            newAlbum = AlbumModel(name: albumTitles[i], count: albumConunt[i], collection: unwrapAlbumCollection, asset: albumFirstObjects[i])
-            
-//            print("name \(newAlbum?.name), count \(newAlbum?.count), asset \(newAlbum?.asset)")
-            
-//            let fetchResultSecond = PHAssetCollection.fetchAssetCollectionsContaining(albumFirstObjects[i], with: .album, options: nil)
-            
-//            let fetchResult =
-            
-//            print("🟢 : \(albumFirstObjects)")
-           
-            
-//            let getThumbnail = albumFirstObjects[i]
-//            guard let getFirstObjects = getMyAlbums.firstObject else {
-//                return
-//            }
-            
-//            self.fetchResult = PHAssetCollection.fetchAssetCollectionsContaining(<#T##asset: PHAsset##PHAsset#>, with: <#T##PHAssetCollectionType#>, options: <#T##PHFetchOptions?#>)
-            
-//            thumbnailAsset = newAlbum?.asset
-//        }
-        
+
     }
     
-//    func getThumbnail(cell: AlbumListCollectionViewCell) {
-//
-//        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-//
-//        guard let thumbnail = thumbnailAsset else {
-//            return
-//        }
-//
-//
-//            imageManager.requestImage(for: thumbnail,
-//                                      targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
-//                                      contentMode: .aspectFill,
-//                                      options: nil)  {image, _ in
-//                                        cell.thumbnailImage = image
-//            }
-//    }
+
     
     private func authorizationStatusOfPhotoLibrary() {
         let photoAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
@@ -208,7 +141,7 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 //        return self.fetchResultOfCollection?.count ?? 0
 //        return self.fetchResult?.count ?? 0
-        return self.albumFirstObjects.count
+        return self.assetFetchResultss?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -220,18 +153,15 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
        
         let asset: PHAsset = fetchResult?.object(at: indexPath.item) ?? PHAsset()
         
-        var assets: PHAsset?
+        var assets: PHAsset = (assetFetchResultss?.object(at: indexPath.item)) as! PHAsset
         
         let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
         
-        for i in 0 ..< albumFirstObjects.count {
-            assets = albumFirstObjects[i]
-        }
-        
+   
         
 
     
-        imageManager.requestImage(for: thumbnailAsset!,
+        imageManager.requestImage(for: assets,
                                               targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
                                               contentMode: .aspectFill,
                                               options: nil) {image, _ in
