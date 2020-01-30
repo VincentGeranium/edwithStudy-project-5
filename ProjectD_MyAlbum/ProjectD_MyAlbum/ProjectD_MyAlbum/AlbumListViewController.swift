@@ -28,6 +28,7 @@ class AlbumListViewController: UIViewController {
     }()
     
     private var fetchResult: PHFetchResult<PHAsset>?
+    private var thumbnailAsset: PHAsset?
     private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
     let fetchSortDescriptorKey: String = "creationDate"
     let albumListTitle = "앨범"
@@ -77,74 +78,89 @@ class AlbumListViewController: UIViewController {
         var newAlbum: AlbumModel?
         let allAlbumCount: Int = getMyAlbums.count
         
+        
         getMyAlbums.enumerateObjects { (collection, index, stop) in
-            let secondFetchOptions = PHFetchOptions()
             
             guard let album = collection as? PHAssetCollection else { return }
             
             albumCollection = album
             
+             fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+            
             // 앨범의 이름 가져오기
             self.albumTitles.append(album.localizedTitle ?? "error")
-            
-//            print(self.albumTitles.count)
-//            print(self.albumTitles[0])
-            
-            let assetFetchResult: PHFetchResult = PHAsset.fetchAssets(in: album, options: secondFetchOptions)
+
+            let assetFetchResult: PHFetchResult = PHAsset.fetchAssets(in: album, options: fetchOptions)
             
             // 각 앨범내의 사진 갯수
             self.albumConunt.append(assetFetchResult.count)
             
             guard let getFirstObject = assetFetchResult.firstObject else { return }
             
+            // 각 앨범의 썸네일 이미지를 뽑아 배열에 넣음
             self.albumFirstObjects.append(getFirstObject)
+//            print("🔴 : \(self.albumFirstObjects.count)")
             
-            // 이미지만 가져오도록 옵션 설정
-            secondFetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+            newAlbum = AlbumModel(name: self.albumTitles[index], count: self.albumConunt[index], collection: album, asset: self.albumFirstObjects[index])
+            print("name \(newAlbum?.name), count \(newAlbum?.count), asset \(newAlbum?.asset)")
             
-//            print(secondFetchOptions)
-
+            self.thumbnailAsset = newAlbum?.asset
         }
         
-        guard let unwrapAlbumCollection = albumCollection else {
-            return
-        }
+        
+     
+        
+//
+//        guard let unwrapAlbumCollection = albumCollection else {
+//            return
+//        }
         
   
         
-        for i in 0 ..< allAlbumCount {
+//        for i in 0 ..< allAlbumCount {
             
-            fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+//            fetchOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+//            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
             
-            newAlbum = AlbumModel(name: albumTitles[i], count: albumConunt[i], collection: unwrapAlbumCollection, asset: albumFirstObjects[i])
+//            newAlbum = AlbumModel(name: albumTitles[i], count: albumConunt[i], collection: unwrapAlbumCollection, asset: albumFirstObjects[i])
             
-            print("name \(newAlbum?.name), count \(newAlbum?.count), asset \(newAlbum?.asset)")
+//            print("name \(newAlbum?.name), count \(newAlbum?.count), asset \(newAlbum?.asset)")
             
-            let fetchResultSecond = PHAssetCollection.fetchAssetCollectionsContaining(albumFirstObjects[i], with: .album, options: nil)
+//            let fetchResultSecond = PHAssetCollection.fetchAssetCollectionsContaining(albumFirstObjects[i], with: .album, options: nil)
+            
+//            let fetchResult =
+            
+//            print("🟢 : \(albumFirstObjects)")
+           
             
 //            let getThumbnail = albumFirstObjects[i]
-            guard let getFirstObjects = fetchResultSecond.firstObject else {
-                return
-            }
+//            guard let getFirstObjects = getMyAlbums.firstObject else {
+//                return
+//            }
             
-            self.fetchResult = PHAsset.fetchAssets(with: fetchOptions)
-        }
+//            self.fetchResult = PHAssetCollection.fetchAssetCollectionsContaining(<#T##asset: PHAsset##PHAsset#>, with: <#T##PHAssetCollectionType#>, options: <#T##PHFetchOptions?#>)
+            
+//            thumbnailAsset = newAlbum?.asset
+//        }
         
     }
     
-    func getThumbnail(cell: AlbumListCollectionViewCell) {
-        
-        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-        
-        for i in 0 ..< fetchResult!.count {
-            imageManager.requestImage(for: fetchResult![i],
-                                      targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
-                                      contentMode: .aspectFill,
-                                      options: nil)  {image, _ in
-                                        cell.thumbnailImage = image
-            }
-        }
-    }
+//    func getThumbnail(cell: AlbumListCollectionViewCell) {
+//
+//        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
+//
+//        guard let thumbnail = thumbnailAsset else {
+//            return
+//        }
+//
+//
+//            imageManager.requestImage(for: thumbnail,
+//                                      targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
+//                                      contentMode: .aspectFill,
+//                                      options: nil)  {image, _ in
+//                                        cell.thumbnailImage = image
+//            }
+//    }
     
     private func authorizationStatusOfPhotoLibrary() {
         let photoAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
@@ -191,7 +207,8 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 //        return self.fetchResultOfCollection?.count ?? 0
-        return self.fetchResult?.count ?? 0
+//        return self.fetchResult?.count ?? 0
+        return self.albumFirstObjects.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -203,20 +220,36 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
        
         let asset: PHAsset = fetchResult?.object(at: indexPath.item) ?? PHAsset()
         
+        var assets: PHAsset?
+        
         let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-
-        imageManager.requestImage(for: asset,
-                                  targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
-                                  contentMode: .aspectFill,
-                                  options: nil) {image, _ in
-                                    cell.thumbnailImage = image
+        
+        for i in 0 ..< albumFirstObjects.count {
+            assets = albumFirstObjects[i]
         }
+        
+        
+
+    
+        imageManager.requestImage(for: thumbnailAsset!,
+                                              targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
+                                              contentMode: .aspectFill,
+                                              options: nil) {image, _ in
+                                                cell.thumbnailImage = image
+                    }
+        
+
+        
+      
+
+
         
 //        getThumbnail(cell: cell)
         
         
         return cell
     }
+    
     
     
     
