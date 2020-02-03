@@ -10,4 +10,5 @@ import Foundation
 import UIKit
 import Photos
 
-let imageManager: PHCachingImageManager = PHCachingImageManager()
+let cachingImageManager: PHCachingImageManager = PHCachingImageManager()
+let imageManagerDefault: PHImageManager = PHImageManager.default()
