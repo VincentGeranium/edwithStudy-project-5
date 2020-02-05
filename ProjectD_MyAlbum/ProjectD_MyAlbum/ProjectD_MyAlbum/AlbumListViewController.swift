@@ -12,6 +12,8 @@ import Photos
 class AlbumListViewController: UIViewController {
     
     private var fetchResult: PHFetchResult<PHAsset>?
+    private var thumbnailArray: [PHAsset] = []
+    private var lastImage: PHAsset?
     private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
     
 //    var fetchReseult: PHFetchResult<PHAsset>!
@@ -27,6 +29,8 @@ class AlbumListViewController: UIViewController {
     var images: UIImage?
     
     var imagesArray: [UIImage] = []
+    
+    var fetchCollection: PHFetchResult<PHAssetCollection>?
     
     private let albumListCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -84,36 +88,50 @@ class AlbumListViewController: UIViewController {
         let option = PHFetchOptions()
         let getAllAlbums: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: option)
         
-        option.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+        fetchCollection = getAllAlbums
+        
+        
+        
+//        option.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
         
         option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
         let manager = PHImageManager.default()
     
-        let getIndexSet = IndexSet.init(integersIn: 0 ..< getAllAlbums.count)
+        let indexSetInit = IndexSet.init(integersIn: 0 ..< getAllAlbums.count)
         
-        print("🟢\(getIndexSet)")
+//        print("🟢\(indexSetInit)")
         
         let test = getAllAlbums.object(at: 1)
         let test2 = getAllAlbums.object(at: 2)
-        let test3 = getAllAlbums.objects(at: getIndexSet)
+        let test3 = getAllAlbums.objects(at: indexSetInit)
+        
 
         print("🔵\(test)")
+//        self.fetchResult = PHAsset.fetchAssets(in: test, options: option)
         print("🔵🔵\(test2)")
-        print("🔵🔵🔵\(test3)")
+//        print("🔵🔵🔵\(test3)")
+//        print("🔵🔵🔵\(test3.count)")
         
         albumsCount = test3.count
         
+        let imageManager = PHCachingImageManager()
+        
         for i in 0 ..< test3.count {
-            let asset = PHAsset.fetchAssets(in: test3[i], options: option)
-            print("🟡 \(i)")
-            print("🟡🟡 \(asset.count)")
-            print("🟡🟡🟡 \(asset)")
-            if asset.count > 0 {
-                self.fetchResult = asset
-            }
-//            self.fetchResult = asset
+            print(test3[i])
+//            print("🔵🔵🔵\(test3[1])")
+            
+            
         }
+       
+//
+//        print("🔴\(test3[0])")
+        
+//        self.fetchResult = PHAsset.fetchAssets(in: test3[0], options: option)
+        
+//        lastImage = self.fetchResult?.lastObject
+        print("🔴\(fetchResult)")
+//        print("🔴\(lastImage)")
         
         
         
@@ -124,9 +142,9 @@ class AlbumListViewController: UIViewController {
 //
         let assetFetchResult = PHAsset.fetchAssets(in: getLastImage, options: option)
 //        self.fetchReseult = assetFetchResult
-        print(fetchResult?.count)
-        print(assetFetchResult.count)
-        print("🔴\(assetFetchResult)")
+//        print(fetchResult?.count)
+//        print(assetFetchResult.count)
+//        print("🔴\(assetFetchResult)")
         
         
         
@@ -276,42 +294,43 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
 
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-
-        return self.albumsCount ?? 0
+        print("🟡\(self.fetchResult?.count)")
+        return self.fetchResult?.count ?? 0
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell: AlbumListCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: AlbumListCollectionViewCell.cellId, for: indexPath) as? AlbumListCollectionViewCell else {
             return UICollectionViewCell()
         }
+    
+        
+        
+        
+        
         let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
         
         let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
         
         var cellThumbnail: UIImage?
         
-//        for i in 0 ..< imagesArray.count {
-//            cell.thumbnailImage = imagesArray[i]
-//            print("🟡🟡🟡 \(imagesArray[i])")
-//            print("🟡🟡🟡 \(imagesArray.count)")
-//        }
         let imageManager = PHCachingImageManager()
         
-        if let getAsset = fetchResult {
-            
-            let asset: PHAsset = getAsset.object(at: indexPath.item)
-            
-            print("🟠🟠🟠 \(getAsset)")
-            
-            imageManager.requestImage(for: asset,
-                                        targetSize: CGSize(width: 30, height: 30),
-                                        contentMode: .aspectFill,
-                                        options: nil,
-                                        resultHandler: { image, _ in
-                                          cell.thumbnailImage = image
-              })
-        }
         
+        
+        let asset: PHAsset = fetchResult!.object(at: indexPath.item)
+        print("🔴🔴\(asset)")
+//
+//
+        imageManager.requestImage(for: lastImage!,
+                                  targetSize: CGSize(width: 30, height: 30),
+                                  contentMode: .aspectFill,
+                                  options: nil,
+                                  resultHandler: { image, _ in
+                                    cell.thumbnailImage = image
+        })
+        
+
         
         
   
