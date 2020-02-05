@@ -55,14 +55,17 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func requestCollection() {
         
         let cameraRoll: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil)
+        print(cameraRoll)
         
         guard let cameraRollCollection = cameraRoll.firstObject else {
             return
         }
+        print(cameraRollCollection)
         
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         self.fetchReseult = PHAsset.fetchAssets(in: cameraRollCollection, options: fetchOptions)
+        print(fetchReseult)
     }
     
     
@@ -74,7 +77,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let cell: UITableViewCell = tableView.dequeueReusableCell(withIdentifier: self.cellId, for: indexPath)
         
         let asset: PHAsset = fetchReseult.object(at: indexPath.row)
-        
+        print(asset)
         imageManager.requestImage(for: asset,
                                   targetSize: CGSize(width: 30, height: 30),
                                   contentMode: .aspectFill,
