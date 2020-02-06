@@ -15,6 +15,7 @@ class AlbumListViewController: UIViewController {
     private var thumbnailArray: [PHAsset] = []
     private var lastImage: PHAsset?
     private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
+    var tempStorageArray: [PHFetchResult<PHAsset>] = []
     
 //    var fetchReseult: PHFetchResult<PHAsset>!
     
@@ -85,69 +86,59 @@ class AlbumListViewController: UIViewController {
     }
     
     private func getAlbumData() {
-        let option = PHFetchOptions()
-        let getAllAlbums: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: option)
+        
+        let getAllAlbums: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
+        
+        let indexSetInit = IndexSet.init(integersIn: 0 ..< getAllAlbums.count)
         
         fetchCollection = getAllAlbums
         
+        let assetCollectionArray = getAllAlbums.objects(at: indexSetInit)
         
+        print("🟢🟢 assetCollectionArray : \(assetCollectionArray), assetCollectionArray Count : \(assetCollectionArray.count), ")
         
-//        option.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-        
+        let option = PHFetchOptions()
         option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
-        let manager = PHImageManager.default()
+        var tempStorage: PHFetchResult<PHAsset>?
+        
+        for i in 0 ..< assetCollectionArray.count {
+            tempStorage = PHAsset.fetchAssets(in: assetCollectionArray[i], options: option)
+            print("🔴🔴🔴 tempStorage : \(tempStorage)")
+            
+            if let fetchaAssets = tempStorage {
+                
+                self.tempStorageArray.append(fetchaAssets)
+                
+                lastImage = fetchaAssets.lastObject
+                let test = fetchaAssets.contains(lastImage!.self)
+                print("🟢🟢 lastImage : \(lastImage)")
+                
+                guard let thumbnails = lastImage else {
+                    return
+                }
+                
+                thumbnailArray.append(thumbnails)
+                
+            }
+            
+        }
+        print("🟢 thumbnailArray.count : \(thumbnailArray.count)")
+        print("🟢 tempStorageArray.count : \(tempStorageArray.count)")
+
+        
+        print("🟢🟢🟢 fetchResult : \(fetchResult)")
+//        print("🟢🟢🟢 fetchResult : \(fetchResult)")
     
-        let indexSetInit = IndexSet.init(integersIn: 0 ..< getAllAlbums.count)
-        
-//        print("🟢\(indexSetInit)")
-        
         let test = getAllAlbums.object(at: 1)
         let test2 = getAllAlbums.object(at: 2)
         let test3 = getAllAlbums.objects(at: indexSetInit)
         
 
-        print("🔵\(test)")
-//        self.fetchResult = PHAsset.fetchAssets(in: test, options: option)
-        print("🔵🔵\(test2)")
-//        print("🔵🔵🔵\(test3)")
-//        print("🔵🔵🔵\(test3.count)")
+
         
         albumsCount = test3.count
-        
-        let imageManager = PHCachingImageManager()
-        
-        for i in 0 ..< test3.count {
-            print(test3[i])
-//            print("🔵🔵🔵\(test3[1])")
-            
-            
-        }
-       
-//
-//        print("🔴\(test3[0])")
-        
-//        self.fetchResult = PHAsset.fetchAssets(in: test3[0], options: option)
-        
-//        lastImage = self.fetchResult?.lastObject
-        print("🔴\(fetchResult)")
-//        print("🔴\(lastImage)")
-        
-        
-        
-//        self.fetchResult = PHAsset.fetchAssets(in: test, options: option)
-        guard let getLastImage = getAllAlbums.firstObject else {
-            return
-        }
-//
-        let assetFetchResult = PHAsset.fetchAssets(in: getLastImage, options: option)
-//        self.fetchReseult = assetFetchResult
-//        print(fetchResult?.count)
-//        print(assetFetchResult.count)
-//        print("🔴\(assetFetchResult)")
-        
-        
-        
+
         var getPhotoCountOfAllAlbums: PHFetchResult<PHAsset>?
         
         // 각 앨범 별 이름 배열
@@ -162,8 +153,6 @@ class AlbumListViewController: UIViewController {
         var eachAlbum: PHAssetCollection?
         
         let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-            
-        let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
         
         for i in 0 ..< getAllAlbums.count {
             // 각각의 앨범
@@ -172,8 +161,6 @@ class AlbumListViewController: UIViewController {
             guard let eachAlbums = eachAlbum else {
                 return
             }
-            
-//            albumResult = getAllAlbumsArray[i]
             
             // 각각의 앨범 명 저장
             eachAlbumsTitles.append(eachAlbums.localizedTitle!)
@@ -185,68 +172,12 @@ class AlbumListViewController: UIViewController {
             if let photoCount = getPhotoCountOfAllAlbums {
                 getAllPhotosCount.append(photoCount.count)
             }
-            
-//            getThumbnail(albumResult: eachAlbums, targetSize: targerSize)
-//            print(eachAlbums)
-//            print("♥️♥️♥️\(images)")
-//            print("♥️♥️♥️\(imagesArray[i])")
         }
-//        print("♥️♥️♥️\(imagesArray.count)")
-//        print("♥️♥️♥️\(imagesArray[0])")
-//        print("♥️♥️♥️\(imagesArray[1])")
-//        print("♥️♥️♥️\(imagesArray[2])")
-//        print("------------------------------------------------------------------------------------")
-//        print(eachAlbumsTitles.count)
-//
-//        print("♥️♥️\(eachAlbumsTitles[0])")
-//        print("♥️♥️\(eachAlbumsTitles[1])")
-//        print("♥️♥️\(eachAlbumsTitles[2])")
-//        print("♥️♥️\(eachAlbumsTitles[3])")
-//
-//        print("♥️\(getAllPhotosCount.count)")
-//        print("♥️\(getAllPhotosCount[0])")
-//        print("♥️\(getAllPhotosCount[1])")
-//        print("♥️\(getAllPhotosCount[2])")
-//        print("♥️\(getAllPhotosCount[3])")
-        
-//        print("♥️♥️♥️\(images)")
-//        print("♥️♥️♥️\(getAllPhotosCount[3])")
-        
-        // 셀 갯수 생성을 위한 모든 앨범의 이름 갯수를 넣어줌
-//        albumsCount = eachAlbumsTitles.count
-        
-        
+        print("🔴 getAllPhotosCount : \(getAllPhotosCount[0])")
+        print("🔴 getAllPhotosCount : \(getAllPhotosCount[1])")
+        print("🔴 getAllPhotosCount : \(getAllPhotosCount[2])")
         
     }
-    
-    private func getThumbnail(albumResult: PHAssetCollection, targetSize: CGSize) {
-        //        DispatchQueue.async(execute: .global(qos: DispatchQoS.background))
-        //        DispatchQueue.global(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0).async(execute: <#() -> Void#>)
-        DispatchQueue.global(qos: DispatchQoS.QoSClass.background).async {
-            let fetchOption = PHFetchOptions()
-            fetchOption.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-            
-            let manager = PHImageManager.default()
-            
-            let assetFetchResult = PHAsset.fetchAssets(in: albumResult, options: fetchOption)
-            
-            if assetFetchResult.count > 0 {
-                if let imageAsset = assetFetchResult.lastObject as? PHAsset {
-                    let requestOption = PHImageRequestOptions()
-                    requestOption.isSynchronous = false
-                    requestOption.deliveryMode = .highQualityFormat
-                    manager.requestImage(for: imageAsset,
-                                         targetSize: targetSize,
-                                         contentMode: .aspectFill,
-                                         options: nil) { image, _ in
-                                            self.images = image
-                                            self.imagesArray.append(image!)
-                    }
-                }
-            }
-        }
-    }
-    
     
 
     
@@ -294,8 +225,8 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
 
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("🟡\(self.fetchResult?.count)")
-        return self.fetchResult?.count ?? 0
+        print("🟡\(self.thumbnailArray.count)")
+        return self.tempStorageArray.count ?? 0
         
     }
     
@@ -317,50 +248,54 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
         let imageManager = PHCachingImageManager()
         
         
+//        if let asset = self.fetchResult?.lastObject {
+//            print("🔴🔴\(asset)")
+//        }
+//        let asset: PHAsset = fetchResult!.object(at: indexPath.item)
         
-        let asset: PHAsset = fetchResult!.object(at: indexPath.item)
-        print("🔴🔴\(asset)")
+//        var tempAsset: PHAsset?
+        
+        var test: PHAsset?
+        var eachPHAsset: PHFetchResult<PHAsset>?
+        var numberTest: Int?
+        var count: [PHFetchResult<PHAsset>] = []
+        let indexSetInit = IndexSet.init(integersIn: 0 ..< tempStorageArray.count)
+        
+        for i in 0 ..< tempStorageArray.count {
+
+            var a = tempStorageArray[i]
+//            test = a.object(at: 0)
+//            print(b)
+            count.append(a)
+            print(a)
+//            var image = count[i]
 //
-//
-        imageManager.requestImage(for: lastImage!,
-                                  targetSize: CGSize(width: 30, height: 30),
-                                  contentMode: .aspectFill,
-                                  options: nil,
-                                  resultHandler: { image, _ in
-                                    cell.thumbnailImage = image
-        })
+//                    imageManager.requestImage(for: image,
+//                                              targetSize: CGSize(width: 30, height: 30),
+//                                              contentMode: .aspectFill,
+//                                              options: nil,
+//                                              resultHandler: { image, _ in
+//                                                cell.thumbnailImage = image
+//                    })
+            
+            
+                    
+        }
+        print(count.count)
+//        print(<#T##items: Any...##Any#>)
+        print(test)
+//        print(indexPath.item)
+        
+        
+//        imageManager.requestImage(for: lastImage!,
+//                                  targetSize: CGSize(width: 30, height: 30),
+//                                  contentMode: .aspectFill,
+//                                  options: nil,
+//                                  resultHandler: { image, _ in
+//                                    cell.thumbnailImage = image
+//        })
         
 
-        
-        
-  
- 
-//        getThumbnail(albumResult: albumResult, targetSize: targerSize, cell: cell)
-        
-//        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-//
-//        var asset: PHAsset?
-//
-//        for i in 0 ..< fetchResultOfAssetArray.count {
-//
-//            asset = fetchResultOfAssetArray[i].object(at: indexPath.item)
-//
-//
-//        }
-//
-//
-//            cachingImageManager.requestImage(for: asset!,
-//                                      targetSize: CGSize(width: widthAndHeight, height: widthAndHeight),
-//                                      contentMode: .aspectFill,
-//                                      options: nil) { image, _ in
-//                                        cell.thumbnailImage  = image
-//            }
-//
-//
-//        print("🔵 \(phAssetArray[0])")
-//        print("🔵 \(phAssetArray[1])")
-//        print(phAssetArray.count)
-//
         
 
         return cell
