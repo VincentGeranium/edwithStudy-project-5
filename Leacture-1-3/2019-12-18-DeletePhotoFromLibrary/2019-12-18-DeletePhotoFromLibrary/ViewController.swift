@@ -55,17 +55,17 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func requestCollection() {
         
         let cameraRoll: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil)
-        print(cameraRoll)
+        print("🟢 cameraRoll : \(cameraRoll)")
         
         guard let cameraRollCollection = cameraRoll.firstObject else {
             return
         }
-        print(cameraRollCollection)
+        print("🟡 cameraRollCollection : \(cameraRollCollection)")
         
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         self.fetchReseult = PHAsset.fetchAssets(in: cameraRollCollection, options: fetchOptions)
-        print(fetchReseult)
+        print("🔴 fetchReseult : \(fetchReseult)")
     }
     
     
@@ -78,6 +78,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         
         let asset: PHAsset = fetchReseult.object(at: indexPath.row)
         print(asset)
+        print(indexPath.row)
         imageManager.requestImage(for: asset,
                                   targetSize: CGSize(width: 30, height: 30),
                                   contentMode: .aspectFill,
