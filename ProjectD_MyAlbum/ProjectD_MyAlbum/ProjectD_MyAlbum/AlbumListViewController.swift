@@ -17,6 +17,13 @@ class AlbumListViewController: UIViewController {
     private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
     var tempStorageArray: [PHFetchResult<PHAsset>] = []
     
+    var cellImage: UIImage?
+    
+    // stackoverflow referance
+    var assetCollection: PHAssetCollection?
+    var albumFound: Bool?
+    var photoAssets: PHFetchResult<PHAsset>?
+    
 //    var fetchReseult: PHFetchResult<PHAsset>!
     
     let fetchSortDescriptorKey: String = "creationDate"
@@ -95,6 +102,36 @@ class AlbumListViewController: UIViewController {
         
         let assetCollectionArray = getAllAlbums.objects(at: indexSetInit)
         
+        // stackoverflow referance 👇
+//        if let eachCollection: AnyObject = getAllAlbums.objects(at: indexSetInit) as AnyObject {
+//            self.assetCollection = eachCollection.firstObject as? PHAssetCollection
+//            self.albumFound = true
+//        } else { albumFound = false }
+//        var i = getAllAlbums.count
+//        self.photoAssets = PHAsset.fetchAssets(in: self.assetCollection ?? PHAssetCollection(), options: nil)
+//        
+//        self.photoAssets?.enumerateObjects({
+//            (object: AnyObject!,
+//            count: Int,
+//            stop: UnsafeMutablePointer<ObjCBool>) in
+//            
+//            if object is PHAsset {
+//                let asset = object as! PHAsset
+//                print("get PHAsset object")
+//                
+//                let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
+//                let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
+//                
+//                imageManagerDefault.requestImage(for: asset,
+//                                                 targetSize: targerSize,
+//                                                 contentMode: .aspectFill,
+//                                                 options: nil) { image, _ in
+//                                                    self.cellImage = image
+//                }
+//            }
+//        })
+        // stackoverflow referance 👆
+        
         print("🟢🟢 assetCollectionArray : \(assetCollectionArray), assetCollectionArray Count : \(assetCollectionArray.count), ")
         
         let option = PHFetchOptions()
@@ -102,27 +139,27 @@ class AlbumListViewController: UIViewController {
         
         var tempStorage: PHFetchResult<PHAsset>?
         
-        for i in 0 ..< assetCollectionArray.count {
-            tempStorage = PHAsset.fetchAssets(in: assetCollectionArray[i], options: option)
-            print("🔴🔴🔴 tempStorage : \(tempStorage)")
-            
-            if let fetchaAssets = tempStorage {
-                
-                self.tempStorageArray.append(fetchaAssets)
-                
-                lastImage = fetchaAssets.lastObject
-                let test = fetchaAssets.contains(lastImage!.self)
-                print("🟢🟢 lastImage : \(lastImage)")
-                
-                guard let thumbnails = lastImage else {
-                    return
-                }
-                
-                thumbnailArray.append(thumbnails)
-                
-            }
-            
-        }
+//        for i in 0 ..< assetCollectionArray.count {
+//            tempStorage = PHAsset.fetchAssets(in: assetCollectionArray[i], options: option)
+//            print("🔴🔴🔴 tempStorage : \(tempStorage)")
+//            
+//            if let fetchaAssets = tempStorage {
+//                
+//                self.tempStorageArray.append(fetchaAssets)
+//                
+//                lastImage = fetchaAssets.lastObject
+//                let test = fetchaAssets.contains(lastImage!.self)
+//                print("🟢🟢 lastImage : \(lastImage)")
+//                
+//                guard let thumbnails = lastImage else {
+//                    return
+//                }
+//                
+//                thumbnailArray.append(thumbnails)
+//                
+//            }
+//            
+//        }
         print("🟢 thumbnailArray.count : \(thumbnailArray.count)")
         print("🟢 tempStorageArray.count : \(tempStorageArray.count)")
 
@@ -225,8 +262,9 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
 
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("🟡\(self.thumbnailArray.count)")
-        return self.tempStorageArray.count ?? 0
+//        print("🟡\(self.thumbnailArray.count)")
+//        return self.tempStorageArray.count ?? 0
+        return 50
         
     }
     
@@ -261,13 +299,13 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
         var count: [PHFetchResult<PHAsset>] = []
         let indexSetInit = IndexSet.init(integersIn: 0 ..< tempStorageArray.count)
         
-        for i in 0 ..< tempStorageArray.count {
+//        for i in 0 ..< tempStorageArray.count {
 
-            var a = tempStorageArray[i]
+//            var a = tempStorageArray[i]
 //            test = a.object(at: 0)
 //            print(b)
-            count.append(a)
-            print(a)
+//            count.append(a)
+//            print(a)
 //            var image = count[i]
 //
 //                    imageManager.requestImage(for: image,
@@ -280,10 +318,10 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
             
             
                     
-        }
-        print(count.count)
-//        print(<#T##items: Any...##Any#>)
-        print(test)
+//        }
+//        print(count.count)
+
+//        print(test)
 //        print(indexPath.item)
         
         
@@ -298,10 +336,9 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
 
         
 
-        return cell
+        return UICollectionViewCell()
     }
-    
 
-    
-    
 }
+
+
