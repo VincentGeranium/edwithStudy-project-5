@@ -17,12 +17,19 @@ class AlbumListViewController: UIViewController {
     private var fetchResultOfCollection: PHFetchResult<PHAssetCollection>?
     var tempStorageArray: [PHFetchResult<PHAsset>] = []
     
-    var cellImage: UIImage?
+    
     
     // stackoverflow referance
     var assetCollection: PHAssetCollection?
+    var asset: PHAsset?
     var albumFound: Bool?
     var photoAssets: PHFetchResult<PHAsset>?
+    var countForCell: Int?
+    var cellImage: [UIImage] = []
+    var photo: UIImage?
+    var assetCollectionCount: [PHAssetCollection] = []
+    var assetCount: [PHAsset] = []
+    
     
 //    var fetchReseult: PHFetchResult<PHAsset>!
     
@@ -87,12 +94,89 @@ class AlbumListViewController: UIViewController {
     
     private func requestCollection() {
         
+        let fetchOption = PHFetchOptions()
+        fetchOption.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
-        getAlbumData()
+        let collection: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
+        
+        let indexSetInit: IndexSet = IndexSet.init(integersIn: 0 ..< collection.count)
+        
+        if let firstObject: AnyObject = collection.objects(at: indexSetInit) as AnyObject {
+            self.fetchResultOfCollection = collection
+            print("😎😎 fetchResultOfCollection : \(fetchResultOfCollection)")
+            
+//            self.assetCollection = collection.firstObject as! PHAssetCollection
+            self.albumFound = true
+//            print("😎😎 firstObject : \(firstObject)")
+        } else { self.albumFound = false }
+        
+        self.fetchResultOfCollection?.enumerateObjects({
+            (object: AnyObject,
+            count: Int,
+            stop: UnsafeMutablePointer<ObjCBool>) in
+            if object is PHAssetCollection {
+                self.assetCollection = object as! PHAssetCollection
+                self.assetCollectionCount.append(self.assetCollection!)
+                self.albumFound = true
+                print("😎😎😎 assetCollection : \(self.assetCollection)")
+                
+                
+//                self.photoAssets = PHAsset.fetchAssets(in: collection, options: fetchOption)
+//                print("📸📸📸📸 Photo : \(self.photoAssets)")
+            } else { self.albumFound = false }
+//            if let photoAsset = assetCollection
+        })
+//        print("📸📸📸📸 Photo : \(self.photoAssets)")
+        
+//        if let photoObject: AnyObject = assetCollection
+        print("🔴🔴🔴 asset count : \(self.assetCount.count)")
+        print("🔴🔴🔴 collection count : \(self.assetCollectionCount.count)")
+//        if let firstObject: AnyObject = collection.firstObject {
+//            self.assetCollection = collection.firstObject as! PHAssetCollection
+//            self.albumFound = true
+//            print("😎😎 firstObject : \(firstObject)")
+//            print("😎😎😎 assetCollection : \(assetCollection)")
+//        } else { self.albumFound = false }
+//        print("😎collection : \(collection)")
+//        var i = collection.count
+//        self.photoAssets = PHAsset.fetchAssets(in: self.assetCollection!, options: nil)
+//        print("😎😎😎😎 photoAssets : \(self.photoAssets)")
+//        let imageManager = imageManagerDefault
+//
+//        self.photoAssets?.enumerateObjects({
+//            (object: AnyObject!,
+//            count: Int,
+//            stop: UnsafeMutablePointer<ObjCBool>) in
+//
+//            if object is PHAsset {
+//                let asset = object as! PHAsset
+//                print("get PHAsset")
+//
+//                let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
+//                let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
+//
+//                imageManager.requestImage(for: asset,
+//                                          targetSize: targerSize,
+//                                          contentMode: .aspectFill,
+//                                          options: nil) { (image, _) in
+//                                            self.cellImage.append(image!)
+//
+//                                            print("📸📸📸📸 Photo : \(self.photo)")
+//                                            self.photo = image
+//                }
+//            }
+//        })
+//        print("📸📸📸📸 Photo : \(self.photo)")
+//        print("📸📸📸 Photo Count : \(self.cellImage.count)")
+        
+        
+//        getAlbumData()
         
     }
     
     private func getAlbumData() {
+        let option = PHFetchOptions()
+        option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
         let getAllAlbums: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
         
@@ -101,41 +185,45 @@ class AlbumListViewController: UIViewController {
         fetchCollection = getAllAlbums
         
         let assetCollectionArray = getAllAlbums.objects(at: indexSetInit)
+        countForCell = assetCollectionArray.count
         
         // stackoverflow referance 👇
-//        if let eachCollection: AnyObject = getAllAlbums.objects(at: indexSetInit) as AnyObject {
-//            self.assetCollection = eachCollection.firstObject as? PHAssetCollection
-//            self.albumFound = true
-//        } else { albumFound = false }
-//        var i = getAllAlbums.count
-//        self.photoAssets = PHAsset.fetchAssets(in: self.assetCollection ?? PHAssetCollection(), options: nil)
-//        
-//        self.photoAssets?.enumerateObjects({
-//            (object: AnyObject!,
-//            count: Int,
-//            stop: UnsafeMutablePointer<ObjCBool>) in
-//            
-//            if object is PHAsset {
-//                let asset = object as! PHAsset
-//                print("get PHAsset object")
-//                
-//                let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-//                let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
-//                
-//                imageManagerDefault.requestImage(for: asset,
-//                                                 targetSize: targerSize,
-//                                                 contentMode: .aspectFill,
-//                                                 options: nil) { image, _ in
-//                                                    self.cellImage = image
-//                }
-//            }
-//        })
+        if let eachCollection: AnyObject = getAllAlbums.objects(at: indexSetInit) as AnyObject {
+            self.assetCollection = eachCollection.firstObject as? PHAssetCollection
+            self.albumFound = true
+        } else { albumFound = false }
+        var i = getAllAlbums.count
+        self.photoAssets = PHAsset.fetchAssets(in: self.assetCollection ?? PHAssetCollection(), options: nil)
+
+        self.photoAssets?.enumerateObjects({
+            (object: AnyObject!,
+            count: Int,
+            stop: UnsafeMutablePointer<ObjCBool>) in
+
+            if object is PHAsset {
+                let asset = object as! PHAsset
+                print("get PHAsset object")
+
+                let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
+                let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
+
+                imageManagerDefault.requestImage(for: asset,
+                                                 targetSize: targerSize,
+                                                 contentMode: .aspectFill,
+                                                 options: nil) { image, _ in
+//                                                    print("😡 \(image)")
+                                                    self.cellImage.append(image!)
+                                                    print("😡😡\(self.cellImage.count)")
+                }
+            }
+        })
+        
         // stackoverflow referance 👆
         
         print("🟢🟢 assetCollectionArray : \(assetCollectionArray), assetCollectionArray Count : \(assetCollectionArray.count), ")
         
-        let option = PHFetchOptions()
-        option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+//        let option = PHFetchOptions()
+//        option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
         var tempStorage: PHFetchResult<PHAsset>?
         
@@ -264,7 +352,7 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 //        print("🟡\(self.thumbnailArray.count)")
 //        return self.tempStorageArray.count ?? 0
-        return 50
+        return countForCell ?? 0
         
     }
     
@@ -272,71 +360,20 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
         guard let cell: AlbumListCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: AlbumListCollectionViewCell.cellId, for: indexPath) as? AlbumListCollectionViewCell else {
             return UICollectionViewCell()
         }
-    
-        
-        
-        
-        
-        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-        
-        let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
-        
-        var cellThumbnail: UIImage?
-        
-        let imageManager = PHCachingImageManager()
-        
-        
-//        if let asset = self.fetchResult?.lastObject {
-//            print("🔴🔴\(asset)")
-//        }
-//        let asset: PHAsset = fetchResult!.object(at: indexPath.item)
-        
-//        var tempAsset: PHAsset?
-        
-        var test: PHAsset?
-        var eachPHAsset: PHFetchResult<PHAsset>?
-        var numberTest: Int?
-        var count: [PHFetchResult<PHAsset>] = []
-        let indexSetInit = IndexSet.init(integersIn: 0 ..< tempStorageArray.count)
-        
-//        for i in 0 ..< tempStorageArray.count {
 
-//            var a = tempStorageArray[i]
-//            test = a.object(at: 0)
-//            print(b)
-//            count.append(a)
-//            print(a)
-//            var image = count[i]
+        
+//        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
 //
-//                    imageManager.requestImage(for: image,
-//                                              targetSize: CGSize(width: 30, height: 30),
-//                                              contentMode: .aspectFill,
-//                                              options: nil,
-//                                              resultHandler: { image, _ in
-//                                                cell.thumbnailImage = image
-//                    })
-            
-            
-                    
-//        }
-//        print(count.count)
-
-//        print(test)
-//        print(indexPath.item)
-        
-        
-//        imageManager.requestImage(for: lastImage!,
-//                                  targetSize: CGSize(width: 30, height: 30),
-//                                  contentMode: .aspectFill,
-//                                  options: nil,
-//                                  resultHandler: { image, _ in
-//                                    cell.thumbnailImage = image
-//        })
+//        let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
+//
+//        var cellThumbnail: UIImage?
+//
+//        let imageManager = PHCachingImageManager()
         
 
-        
 
-        return UICollectionViewCell()
+
+        return cell
     }
 
 }
