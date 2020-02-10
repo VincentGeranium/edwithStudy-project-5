@@ -24,11 +24,14 @@ class AlbumListViewController: UIViewController {
     var asset: PHAsset?
     var albumFound: Bool?
     var photoAssets: PHFetchResult<PHAsset>?
+    var photoAssetsArray: [PHFetchResult<PHAsset>] = []
     var countForCell: Int?
     var cellImage: [UIImage] = []
     var photo: UIImage?
     var assetCollectionCount: [PHAssetCollection] = []
     var assetCount: [PHAsset] = []
+    var assetArray: [PHAsset] = []
+    var photoArray: [UIImage] = []
     
     
 //    var fetchReseult: PHFetchResult<PHAsset>!
@@ -98,6 +101,7 @@ class AlbumListViewController: UIViewController {
         fetchOption.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
         let collection: PHFetchResult<PHAssetCollection> = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
+        print("🔴🔴 collection : \(collection)")
         
         let indexSetInit: IndexSet = IndexSet.init(integersIn: 0 ..< collection.count)
         
@@ -120,16 +124,32 @@ class AlbumListViewController: UIViewController {
                 self.albumFound = true
                 print("😎😎😎 assetCollection : \(self.assetCollection)")
                 
+                self.photoAssets = PHAsset.fetchAssets(in: self.assetCollection!, options: fetchOption)
+                print("📸📸📸📸 Photo : \(self.photoAssets)")
+                
+                var temp = PHAsset.fetchAssets(in: self.assetCollection!, options: fetchOption)
+                self.photoAssetsArray.append(temp)
+                print("📸📸 photoAssetsArray : \(self.photoAssetsArray)")
+                
+                
+                
+                
+                var asset = self.photoAssets?.firstObject
+                print(asset)
+                self.assetCount.append(asset!)
+            
+                
                 
 //                self.photoAssets = PHAsset.fetchAssets(in: collection, options: fetchOption)
 //                print("📸📸📸📸 Photo : \(self.photoAssets)")
             } else { self.albumFound = false }
 //            if let photoAsset = assetCollection
         })
-//        print("📸📸📸📸 Photo : \(self.photoAssets)")
+//        print("📸📸 Photo : \(self.photoAssets)")
         
 //        if let photoObject: AnyObject = assetCollection
         print("🔴🔴🔴 asset count : \(self.assetCount.count)")
+        print("🔴🔴🔴 asset Array : \(self.assetCount)")
         print("🔴🔴🔴 collection count : \(self.assetCollectionCount.count)")
 //        if let firstObject: AnyObject = collection.firstObject {
 //            self.assetCollection = collection.firstObject as! PHAssetCollection
@@ -352,7 +372,7 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 //        print("🟡\(self.thumbnailArray.count)")
 //        return self.tempStorageArray.count ?? 0
-        return countForCell ?? 0
+        return assetCount.count ?? 0
         
     }
     
@@ -362,15 +382,41 @@ extension AlbumListViewController: UICollectionViewDelegateFlowLayout, UICollect
         }
 
         
-//        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
-//
-//        let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
+        let widthAndHeight: CGFloat = (UIScreen.main.bounds.width / 2) - 15
+
+        let targerSize = CGSize(width: widthAndHeight, height: widthAndHeight)
 //
 //        var cellThumbnail: UIImage?
 //
 //        let imageManager = PHCachingImageManager()
         
-
+        var aa: [PHAsset] = []
+        var a: PHFetchResult<PHAsset>?
+        var tempImage: UIImage?
+        
+        for i in 0 ..< photoAssetsArray.count {
+          a = photoAssetsArray[i]
+            print("🟡🟡🟡🟡🟡\(a)")
+            
+            aa.append(a!.firstObject!)
+            
+            imageManagerDefault.requestImage(for: aa[0], targetSize: targerSize, contentMode: .aspectFill, options: nil ) { image, _ in
+                tempImage = image
+            }
+           
+        }
+        print(a)
+        print(aa)
+        photoArray.append(tempImage!)
+        print(photoArray.count)
+        
+        
+        
+//        for i in 0 ..< aa.count {
+//            if indexPath.item == i {
+//                cell.thumbnailImageView.image = aa[i]
+//            }
+//        }
 
 
         return cell
